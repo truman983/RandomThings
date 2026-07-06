@@ -2,7 +2,7 @@ local module = {}
 
 module.__index = module
 
-local TweenService = game:GetService("TweenService")
+local TweenService = cloneref(game:GetService("TweenService"))
 local openTime = 0.3
 local isOpen
 
@@ -212,14 +212,11 @@ end
 
 function module.New()
 	local top = game.Players.LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
---[[
 	local succ, result = pcall(gethui)
 	if succ then
 	top = result
 	end
-	
-	unbracket this when putting in exec
-]]	
+
 	
 	local self = setmetatable({}, module)
 	
