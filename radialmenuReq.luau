@@ -2,7 +2,7 @@ local module = {}
 
 module.__index = module
 
-local TweenService = cloneref(game:GetService("TweenService"))
+local TweenService = game:GetService("TweenService")
 local openTime = 0.3
 local isOpen
 
@@ -53,6 +53,21 @@ export type ToggleButton = {
 	ActiveColor: Color3;
 	InitialState: boolean
 }
+
+export type MenuButton = {
+	
+	ButtonNumber: number;
+	ButtonText: string;
+	ActiveText: string;
+	ActiveColor: Color3;
+	InitialState: boolean;
+	UIToToggle: GuiObject
+	
+	
+}
+
+
+
 
 -- // page maker \\
 
@@ -136,7 +151,7 @@ function pageMaker:MakePage(PageName: string, AmountOfItems: number, buttonScale
 			
 			button.Text = buttonTbl.ButtonText or "Button"
 			
-			slf.ButtonConnections["Button_"..buttonTbl.ButtonNumber] = button.MouseButton1Down:Connect(buttonTbl.func)
+			slf.ButtonConnections[Folder.Name..": button_"..buttonTbl.ButtonNumber] = button.MouseButton1Down:Connect(buttonTbl.func)
 			
 		end
 		
@@ -154,7 +169,7 @@ function pageMaker:MakePage(PageName: string, AmountOfItems: number, buttonScale
 			local toggled = buttonTbl.InitialState or false
 		
 			
-			slf.ButtonConnections["Button_"..buttonTbl.ButtonNumber] = button.MouseButton1Down:Connect(function()
+			slf.ButtonConnections[Folder.Name..": button_"..buttonTbl.ButtonNumber] = button.MouseButton1Down:Connect(function()
 				toggled = not toggled
 				if toggled then
 					
@@ -179,11 +194,46 @@ function pageMaker:MakePage(PageName: string, AmountOfItems: number, buttonScale
 
 	end
 	
-	function Obj:DisconnectButton(ButtonNumber: number)
-		if slf.ButtonConnections["Button_"..ButtonNumber] then
+	function Obj:AssignMenuToggle(buttonTbl: MenuButton)
+		
+		local button: TextButton = Folder[buttonTbl.ButtonNumber]
+		local defaultColor = button.BackgroundColor3
+		
+		if button then
 			
-			slf.ButtonConnections["Button_"..ButtonNumber]:Disconnect()
-			slf.ButtonConnections["Button_"..ButtonNumber] = nil
+			button.Text = buttonTbl.ButtonText or "Menu Toggle"
+			local toggled = buttonTbl.InitialState or false
+			
+			slf.ButtonConnections[Folder.Name..": button_"..buttonTbl.ButtonNumber] = button.MouseButton1Down:Connect(function()
+				if toggled then
+
+					button.BackgroundColor3 = buttonTbl.ActiveColor or Color3.fromRGB(0,255)
+					button.Text = buttonTbl.ActiveText or "Active"
+					buttonTbl.UIToToggle.Visible = toggled
+
+				else
+
+					button.BackgroundColor3 = defaultColor
+					button.Text = buttonTbl.ButtonText
+					buttonTbl.UIToToggle.Visible = toggled
+				end
+				
+				
+				
+			end)
+			
+			
+		end
+		
+		
+		
+	end
+	
+	function Obj:DisconnectButton(ButtonNumber: number, Page: string)
+		if slf.ButtonConnections[Page..": button_"..ButtonNumber] then
+			
+			slf.ButtonConnections[Page..": button_"..ButtonNumber]:Disconnect()
+			slf.ButtonConnections[Page..": button_"..ButtonNumber] = nil
 			
 		end
 	end
@@ -212,11 +262,14 @@ end
 
 function module.New()
 	local top = game.Players.LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
+--[[
 	local succ, result = pcall(gethui)
 	if succ then
 	top = result
 	end
-
+	
+	unbracket this when putting in exec
+]]	
 	
 	local self = setmetatable({}, module)
 	
