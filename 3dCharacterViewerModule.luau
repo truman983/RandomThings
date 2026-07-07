@@ -10,7 +10,7 @@ export type modelViewerObj = {
 	Pitch: number;
 	YawVelocity: number;
 	PitchVelocity: number;
-	Friction: number;
+	Damping: number;
 	Sensitivity: number;	
 	LastMousePos: Vector2;
 	CurrentMousePos: Vector2;
@@ -25,7 +25,6 @@ export type modelViewerObj = {
 	
 	ViewPort: ViewportFrame;
 	WorldModel: WorldModel;
-	ModelCache: Model;
 	
 	StartLoop: (self: modelViewerObj) -> ();
 	StopLoop: (self: modelViewerObj) -> ();
@@ -59,6 +58,19 @@ local function UpdateCam(camera:Camera, center: Vector3, pitch: number, yaw: num
 	camera.CFrame = CFrame.new(cent + offset, cent)
 end
 
+local function PlrByUserOrDisplay(name: string): Player
+	local plr
+	for i,v in pairs(game.Players:GetPlayers()) do
+		if string.lower(v.DisplayName) == string.lower(name) or string.lower(v.Name) == string.lower(name) then
+			plr = v
+			break
+		end
+	end
+
+	return plr
+
+end
+
 function modelViewer.New(vpParent: GuiObject, config: ViewportConfig): modelViewerObj
 	local self = setmetatable({}, modelViewer) :: modelViewerObj
 	
@@ -66,7 +78,7 @@ function modelViewer.New(vpParent: GuiObject, config: ViewportConfig): modelView
 	self.Pitch = 0
 	self.YawVelocity = 0
 	self.PitchVelocity = 0
-	self.Friction = 0
+	self.Damping = 0.93
 	self.Sensitivity = 0.001
 	
 	self.CameraConnection = nil
@@ -75,7 +87,8 @@ function modelViewer.New(vpParent: GuiObject, config: ViewportConfig): modelView
 
 	self.PlayerLoaded = "Roblox"
 	
-	self.ModelLoaded = game.Players:CreateHumanoidModelFromUserIdAsync(game.Players:GetUserIdFromNameAsync(self.PlayerLoaded))
+	self.ModelLoaded = game.Players:CreateHumanoidModelFromUserIdAsync(game.Players:GetUserIdFromNameAsync("Roblox"))
+	print(self.ModelLoaded)
 	
 	self.ViewPort = Instance.new("ViewportFrame", vpParent)
 	self.Camera = Instance.new("Camera", self.ViewPort)
@@ -92,7 +105,7 @@ function modelViewer.New(vpParent: GuiObject, config: ViewportConfig): modelView
 	self.ViewPort.Position = config.Position or UDim2.fromScale(0.5,0.5)
 	self.ViewPort.BackgroundColor3 = config.BackgroundColor or  Color3.fromRGB(32, 127, 48)
 	
-	UpdateCam(self.Camera, Vector3.zero, self.Pitch, self.Yaw, -6, self.ViewPort)
+	UpdateCam(self.Camera, Vector3.zero, self.Pitch, self.Yaw, -7.5, self.ViewPort)
 	
 	self.ModelLoaded.Parent = self.WorldModel
 	
@@ -100,9 +113,7 @@ function modelViewer.New(vpParent: GuiObject, config: ViewportConfig): modelView
 end
 
 function modelViewer:StartLoop()
-	
-	print(self)
-	
+
 	local dragging = false
 	local lastMousePos
 	
@@ -143,10 +154,10 @@ function modelViewer:StartLoop()
 
 		self.Pitch = math.clamp(self.Pitch, math.rad(-80), math.rad(80))
 
-		self.YawVelocity *= 0.93
-		self.PitchVelocity *= 0.93
+		self.YawVelocity *= self.Damping
+		self.PitchVelocity *= self.Damping
 
-		UpdateCam(self.Camera, Vector3.zero, self.Pitch, self.Yaw, -6, self.ViewPort)
+		UpdateCam(self.Camera, Vector3.zero, self.Pitch, self.Yaw, -7.5, self.ViewPort)
 
 			
 		end)
@@ -174,7 +185,8 @@ end
 
 function modelViewer:LoadCharacter(Name: string)
 	
-	local ingame: Player = game.Players:FindFirstChild(Name)
+	
+	local ingame: Player = PlrByUserOrDisplay(Name)
 	
 	if not ingame then
 		
@@ -187,6 +199,9 @@ function modelViewer:LoadCharacter(Name: string)
 			
 			self.PlayerLoaded = Name
 			self.ModelLoaded:FindFirstChildOfClass("Humanoid"):ApplyDescriptionResetAsync(humDesc)
+		else
+			self.PlayerLoaded = "Roblox"
+			self.ModelLoaded:FindFirstChildOfClass("Humanoid"):ApplyDescriptionResetAsync(game.Players:GetHumanoidDescriptionFromUserIdAsync(game.Players:GetUserIdFromNameAsync("Roblox")))
 		end
 		
 	else
