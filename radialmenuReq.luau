@@ -264,15 +264,6 @@ end
 
 
 function module.New(Parent: GuiObject)
---[[
-	local succ, result = pcall(gethui)
-	if succ then
-	top = result
-	end
-	
-	unbracket this when putting in exec
-]]	
-	
 	local self = setmetatable({}, module)
 	
 	self.TopCircle = Instance.new("CanvasGroup", Parent)
