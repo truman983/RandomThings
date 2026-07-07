@@ -205,6 +205,8 @@ function pageMaker:MakePage(PageName: string, AmountOfItems: number, buttonScale
 			local toggled = buttonTbl.InitialState or false
 			
 			slf.ButtonConnections[Folder.Name..": button_"..buttonTbl.ButtonNumber] = button.MouseButton1Down:Connect(function()
+				toggled = not toggled
+				
 				if toggled then
 
 					button.BackgroundColor3 = buttonTbl.ActiveColor or Color3.fromRGB(0,255)
@@ -212,10 +214,11 @@ function pageMaker:MakePage(PageName: string, AmountOfItems: number, buttonScale
 					buttonTbl.UIToToggle.Visible = toggled
 
 				else
-
+					
 					button.BackgroundColor3 = defaultColor
 					button.Text = buttonTbl.ButtonText
 					buttonTbl.UIToToggle.Visible = toggled
+					
 				end
 				
 				
@@ -260,8 +263,7 @@ end
 -- // main module \\
 
 
-function module.New()
-	local top = game.Players.LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
+function module.New(Parent: GuiObject)
 --[[
 	local succ, result = pcall(gethui)
 	if succ then
@@ -273,9 +275,9 @@ function module.New()
 	
 	local self = setmetatable({}, module)
 	
-	self.TopCircle = Instance.new("CanvasGroup", top)
+	self.TopCircle = Instance.new("CanvasGroup", Parent)
 	CircleIfy(self.TopCircle)
-	self.TopCircle.Size = UDim2.fromScale(0.5,0.5)
+	self.TopCircle.Size = UDim2.fromScale(0.67,0.67)
 	self.TopCircle.Visible = false
 	self.TopCircle.AnchorPoint = Vector2.new(0.5,0.5)
 	self.TopCircle.Position = UDim2.fromScale(0.5,0.5)
