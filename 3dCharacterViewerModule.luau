@@ -34,6 +34,13 @@ export type modelViewerObj = {
 	
 }
 
+export type ViewportConfig = {
+	Size: UDim2;
+	Position: UDim2;
+	AnchorPoint: Vector2;
+	BackgroundColor: Color3;
+}
+
 
 
 local function UpdateCam(camera:Camera, center: Vector3, pitch: number, yaw: number, dist: number, vp: ViewportFrame)
@@ -52,7 +59,7 @@ local function UpdateCam(camera:Camera, center: Vector3, pitch: number, yaw: num
 	camera.CFrame = CFrame.new(cent + offset, cent)
 end
 
-function modelViewer.New(vpParent: GuiObject): modelViewerObj
+function modelViewer.New(vpParent: GuiObject, config: ViewportConfig): modelViewerObj
 	local self = setmetatable({}, modelViewer) :: modelViewerObj
 	
 	self.Yaw = 0
@@ -80,10 +87,10 @@ function modelViewer.New(vpParent: GuiObject): modelViewerObj
 	
 	self.WorldModel = Instance.new("WorldModel", self.ViewPort)
 	
-	self.ViewPort.Size = UDim2.fromScale(0.5,0.5)
-	self.ViewPort.AnchorPoint = Vector2.new(0.5,0.5)
-	self.ViewPort.Position = UDim2.fromScale(0.5,0.5)
-	self.ViewPort.BackgroundColor3 = Color3.fromRGB(32, 127, 48)
+	self.ViewPort.Size = config.Size or UDim2.fromScale(0.5,0.5)
+	self.ViewPort.AnchorPoint = config.AnchorPoint or Vector2.new(0.5,0.5)
+	self.ViewPort.Position = config.Position or UDim2.fromScale(0.5,0.5)
+	self.ViewPort.BackgroundColor3 = config.BackgroundColor or  Color3.fromRGB(32, 127, 48)
 	
 	UpdateCam(self.Camera, Vector3.zero, self.Pitch, self.Yaw, -6, self.ViewPort)
 	
