@@ -73,6 +73,10 @@ function modelViewer.New(vpParent: GuiObject): modelViewerObj
 	self.ViewPort = Instance.new("ViewportFrame", vpParent)
 	self.Camera = Instance.new("Camera", self.ViewPort)
 	self.ViewPort.CurrentCamera = self.Camera
+	local stroke = Instance.new("UIStroke", self.ViewPort)
+	stroke.Thickness = 0.7
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Color = Color3.fromRGB(0,0,0)
 	
 	self.WorldModel = Instance.new("WorldModel", self.ViewPort)
 	
